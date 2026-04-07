@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Travel Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --sand:#F5F0E8; --sand2:#EDE6D6; --sand3:#E2D9C5;
+  --ink:#1C1A16;  --ink2:#4A4640;  --ink3:#8A857D;
+  --gold:#C8973A; --gold2:#E8B95A;
+  --rust:#8B3A2A; --rustbg:#FBF0EE;
+  --white:#FFFFFF;
+  --bdr:rgba(28,26,22,0.12); --bdr2:rgba(28,26,22,0.22);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --r:8px; --rl:12px;
+  --sh:0 2px 12px rgba(0,0,0,0.07);
+  --shl:0 8px 32px rgba(0,0,0,0.13);
+}
+
+body{font-family:var(--sans);background:var(--sand);color:var(--ink);font-size:14px;min-height:100vh;line-height:1.5}
+
+/* ─── App shell ──────────────────────────────── */
+.app{max-width:960px;margin:0 auto;padding:0 1.25rem 4rem}
+
+/* ─── Top nav ────────────────────────────────── */
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;padding:1.75rem 0 0;margin-bottom:0;gap:1rem;flex-wrap:wrap}
+.topbar-brand h1{font-family:var(--serif);font-size:2.4rem;font-weight:600;letter-spacing:-0.5px;line-height:1}
+.topbar-brand p{font-size:11px;color:var(--ink3);margin-top:4px;letter-spacing:0.08em;text-transform:uppercase}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--sand3);margin-bottom:2rem;margin-top:1.5rem}
+.tab{font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 20px;background:transparent;border:none;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;border-radius:4px 4px 0 0}
+.tab:hover{color:var(--ink2);background:var(--sand2)}
+.tab.active{color:var(--ink);border-bottom-color:var(--gold);background:var(--white)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ─── Buttons ────────────────────────────────── */
+.btn{font-family:var(--sans);font-size:12.5px;font-weight:500;padding:8px 16px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:all 0.15s;line-height:1;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.btn-p:hover{background:#333}
+.btn-s{background:var(--white);color:var(--ink2);border-color:var(--bdr2)}
+.btn-s:hover{background:var(--sand2)}
+.btn-g{background:transparent;color:var(--ink3);border-color:var(--bdr)}
+.btn-g:hover{background:var(--sand2);color:var(--ink2)}
+.btn-d{background:transparent;color:var(--rust);border-color:transparent}
+.btn-d:hover{background:var(--rustbg);border-color:#E0C0BA}
+.btn-sm{font-size:11.5px;padding:5px 11px}
+.btn-lg{font-size:14px;padding:11px 24px;border-radius:6px}
+.btn-x{background:none;border:none;font-size:22px;color:var(--ink3);cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px}
+.btn-x:hover{color:var(--ink);background:var(--sand2)}
+
+/* ─── Stats bar ──────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.75rem}
+.stat{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;text-align:center}
+.stat-n{font-family:var(--serif);font-size:2rem;font-weight:600;line-height:1}
+.stat-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-top:4px}
+
+/* ─── Journal toolbar ────────────────────────── */
+.j-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap}
+.j-hdr-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tb-search{margin-bottom:8px;position:relative}
+.tb-search input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--bdr2);border-radius:20px;font-family:var(--sans);font-size:13px;background:var(--white);color:var(--ink);outline:none;transition:border-color 0.15s}
+.tb-search input:focus{border-color:var(--gold)}
+.tb-search::before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A857D' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center/contain no-repeat}
+.tb-filters{display:flex;gap:8px;margin-bottom:1.5rem}
+.tb-filters select{flex:1;font-family:var(--sans);font-size:12px;padding:7px 10px;border:1px solid var(--bdr2);border-radius:20px;background:var(--white);color:var(--ink2);cursor:pointer;outline:none;min-width:0}
+.tb-filters select:focus{border-color:var(--gold)}
+
+/* ─── Journal cards ──────────────────────────── */
+.j-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.jcard{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rl);padding:0.9rem 1rem;cursor:pointer;transition:box-shadow 0.18s,transform 0.18s;display:flex;flex-direction:column;gap:5px}
+.jcard:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.jcard-top{display:flex;align-items:center;justify-content:space-between}
+.jcard-cont{font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;font-weight:500}
+.cbadge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.jcard-name{font-family:var(--serif);font-size:1.1rem;font-weight:600;line-height:1.25}
+.jcard-loc{font-size:11px;color:var(--ink3)}
+.jcard-stars{display:flex;gap:2px;align-items:center}
+.star{display:inline-block;width:11px;height:11px}.star svg{width:11px;height:11px;display:block}
+.rtxt{font-size:10px;color:var(--ink3);margin-left:3px}
+.jcard-prev{font-size:11px;color:var(--ink3);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--serif)}
+.jcard-hint{font-size:10px;color:var(--ink3);margin-top:2px}.jcard-hint span{color:var(--gold)}
+
+/* ─── Modals ─────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(28,26,22,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--white);border-radius:var(--rl);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:var(--shl)}
+.modal-sm{max-width:500px}
+.mhdr{padding:1.2rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);z-index:1}
+.mhdr-t{font-family:var(--serif);font-size:1.45rem;font-weight:600}
+.mbody{padding:1.2rem 1.5rem}
+.mftr{padding:1rem 1.5rem;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--white)}
+
+/* ─── Form ───────────────────────────────────── */
+.fsec{margin-bottom:1.3rem}
+.fsec-t{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);font-weight:500;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--sand3)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fg label{font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink3);font-weight:500}
+.fg .opt{opacity:0.6;font-style:italic;text-transform:none;letter-spacing:0}
+.fg input,.fg select,.fg textarea{font-family:var(--sans);font-size:13px;border:1px solid var(--bdr2);border-radius:4px;padding:8px 10px;background:var(--sand);color:var(--ink);width:100%;outline:none;transition:border-color 0.15s,background 0.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);background:var(--white)}
+.fg textarea{resize:vertical;min-height:70px;line-height:1.5}
+.spicker{display:flex;gap:4px}
+.sp{font-size:22px;cursor:pointer;color:var(--sand3);transition:color 0.1s,transform 0.1s;user-select:none;line-height:1}
+.sp.on{color:var(--gold)}.sp:hover{transform:scale(1.15)}
+.cpicker{display:flex;flex-wrap:wrap;gap:6px}
+.cpill{font-family:var(--sans);font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--bdr2);background:var(--sand);color:var(--ink2);cursor:pointer;transition:all 0.15s;line-height:1}
+.cpill:hover{background:var(--sand2)}.cpill.on{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* ─── Detail panel ───────────────────────────── */
+.dsec{margin-bottom:1.1rem}
+.dsec-t{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);font-weight:500;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--sand3)}
+.drow{display:flex;gap:8px;font-size:13px;color:var(--ink2);margin-bottom:5px}
+.dico{color:var(--gold);width:16px;flex-shrink:0;text-align:center}
+.dcomment{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--ink2);line-height:1.6;padding:10px 14px;background:var(--sand);border-left:3px solid var(--gold2);border-radius:0 4px 4px 0}
+.dactions{display:flex;gap:8px;padding-top:1rem;border-top:1px solid var(--bdr)}
+
+/* ─── Empty ──────────────────────────────────── */
+.empty{text-align:center;padding:5rem 2rem;background:var(--white);border:1.5px dashed var(--bdr2);border-radius:var(--rl)}
+.empty h3{font-family:var(--serif);font-size:1.5rem;color:var(--ink2);margin:1rem 0 8px}
+.empty p{font-size:13px;color:var(--ink3)}
+
+/* ─── Toast ──────────────────────────────────── */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--white);padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.25s,transform 0.25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── Builder config ─────────────────────────── */
+.config-panel{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rl);padding:1.75rem;margin-bottom:2rem}
+.config-title{font-family:var(--serif);font-size:1.35rem;font-weight:600;margin-bottom:1.4rem;padding-bottom:0.9rem;border-bottom:1px solid var(--sand3);display:flex;align-items:center;gap:10px}
+.config-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.config-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.cfg-fg{display:flex;flex-direction:column;gap:5px}
+.cfg-fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink3);font-weight:500}
+.cfg-fg .opt{font-style:italic;text-transform:none;letter-spacing:0;opacity:0.7}
+.cfg-fg select,.cfg-fg input{font-family:var(--sans);font-size:13px;border:1px solid var(--bdr2);border-radius:4px;padding:8px 10px;background:var(--sand);color:var(--ink);width:100%;outline:none;transition:border-color 0.15s,background 0.15s}
+.cfg-fg select:focus,.cfg-fg input:focus{border-color:var(--gold);background:var(--white)}
+.mode-btn{font-family:var(--sans);font-size:12.5px;font-weight:500;padding:8px 18px;border-radius:20px;cursor:pointer;border:1.5px solid var(--bdr2);background:var(--sand);color:var(--ink2);transition:all 0.15s;line-height:1}
+.mode-btn:hover{background:var(--sand2)}.mode-btn.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.cat-btn{font-family:var(--sans);font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--bdr2);background:var(--sand);color:var(--ink2);cursor:pointer;transition:all 0.15s;line-height:1}
+.cat-btn:hover{background:var(--sand2)}.cat-btn.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.config-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid var(--sand3);flex-wrap:wrap;gap:10px}
+.places-found{font-size:12.5px;color:var(--ink3)}
+.places-found strong{color:var(--ink2);font-weight:500}
+.b-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap}
+
+/* ─── Itinerary output ───────────────────────── */
+.section-heading{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;gap:1rem}
+.section-heading h2{font-family:var(--serif);font-size:1.6rem;font-weight:600}
+.section-meta{font-size:12px;color:var(--ink3)}
+.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.75rem}
+.sstat{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;text-align:center}
+.sstat-n{font-family:var(--serif);font-size:1.8rem;font-weight:600;color:var(--ink);line-height:1}
+.sstat-l{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-top:3px}
+.day-block{margin-bottom:1.5rem}
+.day-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.day-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;font-weight:500;color:var(--white);background:var(--gold);padding:4px 12px;border-radius:20px;white-space:nowrap}
+.day-title{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--ink2)}
+.day-rule{flex:1;height:1px;background:var(--sand3);min-width:20px}
+.place-row{display:flex;background:var(--white);border:1px solid var(--bdr);border-radius:var(--rl);margin-bottom:8px;overflow:hidden;transition:box-shadow 0.15s}
+.place-row:hover{box-shadow:var(--sh)}
+.place-time{min-width:70px;padding:14px 12px;background:var(--sand);border-right:1px solid var(--bdr);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+.place-time-val{font-family:var(--serif);font-size:1rem;font-weight:600;color:var(--ink);line-height:1}
+.place-time-lbl{font-size:9.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em}
+.place-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.place-name{font-family:var(--serif);font-size:1.1rem;font-weight:600;line-height:1.2}
+.place-loc{font-size:11.5px;color:var(--ink3)}
+.place-rating{display:flex;gap:2px;align-items:center}
+.place-comment{font-family:var(--serif);font-style:italic;font-size:0.9rem;color:var(--ink3);line-height:1.4}
+.place-tips{font-size:11.5px;color:var(--ink3);display:flex;gap:6px;align-items:flex-start}
+.place-tips-icon{color:var(--gold);flex-shrink:0}
+.place-badge-col{padding:12px 10px;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;gap:4px;min-width:80px}
+.itin-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;letter-spacing:0.03em;white-space:nowrap}
+.best-time-badge{font-size:10px;color:var(--ink3);white-space:nowrap;background:var(--sand);border:1px solid var(--bdr);padding:2px 7px;border-radius:10px}
+.travel-connector{display:flex;align-items:center;gap:8px;padding:4px 14px 4px 25px;font-size:11px;color:var(--ink3);margin-bottom:8px}
+.travel-connector::before{content:'';display:block;width:1px;height:18px;background:var(--bdr2);margin-right:6px}
+.unscheduled{margin-top:2rem}
+.unscheduled-title{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:10px;font-weight:500}
+.unscheduled-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.unsched-card{background:var(--white);border:1px dashed var(--bdr2);border-radius:var(--r);padding:10px 12px;font-size:12px}
+.unsched-name{font-family:var(--serif);font-size:1rem;font-weight:600;margin-bottom:2px}
+.unsched-loc{font-size:11px;color:var(--ink3)}
+
+/* ─── Print ──────────────────────────────────── */
+@media print{
+  .no-print{display:none!important}
+  body{background:white}
+  .app{padding:0;max-width:100%}
+  .tabs,.topbar,.config-panel,.j-hdr,.j-hdr-btns,.tb-search,.tb-filters,.stats,.j-grid,.tab-panel:not(.active){display:none!important}
+  #panel-builder{display:block!important}
+  .place-row:hover{box-shadow:none}
+}
+
+/* ─── Responsive ─────────────────────────────── */
+@media(max-width:600px){
+  .stats,.summary-bar{grid-template-columns:repeat(2,1fr)}
+  .frow,.config-grid-2,.config-grid-3{grid-template-columns:1fr}
+  .tb-filters{flex-wrap:wrap}
+  .topbar-brand h1{font-size:2rem}
+  .place-badge-col{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <h1>My Travel Planner</h1>
+      <p>Journal &amp; Itinerary Builder</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('journal')">✈ My Journal</button>
+    <button class="tab" onclick="switchTab('builder')" id="tab-builder">🗺 Itinerary Builder</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TAB 1: TRAVEL JOURNAL
+  ════════════════════════════════════════════ -->
+  <div id="panel-journal" class="tab-panel active">
+
+    <div class="j-hdr">
+      <div></div>
+      <div class="j-hdr-btns">
+        <button class="btn btn-g btn-sm" id="btn-import">&#8593; Import</button>
+        <button class="btn btn-s btn-sm" id="btn-export">&#8595; Export</button>
+        <button class="btn btn-s btn-sm" id="btn-clear" style="color:var(--rust);border-color:rgba(139,58,42,0.3)">&#128465; Clear All</button>
+        <button class="btn btn-p" id="btn-add">+ Add Place</button>
+      </div>
+    </div>
+
+    <div class="stats" id="j-stats">
+      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Places</div></div>
+      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Countries</div></div>
+      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Continents</div></div>
+      <div class="stat"><div class="stat-n">&mdash;</div><div class="stat-l">Avg Rating</div></div>
+    </div>
+
+    <div class="tb-search">
+      <input type="text" id="j-search" placeholder="Search places, countries...">
+    </div>
+    <div class="tb-filters">
+      <select id="j-fil-cont"><option value="All">All Continents</option></select>
+      <select id="j-fil-cat">
+        <option value="All">All Categories</option>
+        <option value="Nature and Scenery">Nature and Scenery</option>
+        <option value="Culture and History">Culture and History</option>
+        <option value="City and Shopping">City &amp; Shopping</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Others">Others</option>
+      </select>
+      <select id="j-fil-rat">
+        <option value="0">Any Rating</option>
+        <option value="5">5 stars only</option>
+        <option value="4">4 stars and up</option>
+        <option value="3">3 stars and up</option>
+      </select>
+      <select id="j-fil-sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="rat-d">Highest rated</option>
+        <option value="rat-a">Lowest rated</option>
+        <option value="az">Name A–Z</option>
+      </select>
+    </div>
+
+    <div id="j-grid"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TAB 2: ITINERARY BUILDER
+  ════════════════════════════════════════════ -->
+  <div id="panel-builder" class="tab-panel">
+
+    <div class="b-hdr no-print">
+      <div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g btn-sm" onclick="bRefresh()" id="refresh-btn">↺ Refresh Data</button>
+      </div>
+    </div>
+
+    <div class="config-panel no-print">
+      <div class="config-title"><span>⚙</span> Trip Settings</div>
+
+      <div style="display:flex;gap:8px;margin-bottom:1.4rem">
+        <button type="button" id="mode-single" class="mode-btn active" onclick="setMode('single')">Single Province / State</button>
+        <button type="button" id="mode-multi"  class="mode-btn"        onclick="setMode('multi')">Multi-Province Road Trip</button>
+      </div>
+
+      <div class="config-grid-3" style="margin-bottom:14px">
+        <div class="cfg-fg">
+          <label>Continent</label>
+          <select id="cfg-continent"><option value="">All Continents</option></select>
+        </div>
+        <div class="cfg-fg">
+          <label>Country <span class="opt" id="opt-country">(optional)</span></label>
+          <select id="cfg-country"><option value="">All Countries</option></select>
+        </div>
+        <div id="panel-single">
+          <div class="cfg-fg">
+            <label>State / Province <span class="opt">(optional)</span></label>
+            <select id="cfg-state"><option value="">All Regions</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-multi" style="display:none;margin-bottom:14px">
+        <div class="cfg-fg">
+          <label>Select Provinces / States <span class="opt">(choose one or more)</span></label>
+          <div id="province-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+            <span style="font-size:12px;color:var(--ink3);font-style:italic">Select a country first.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-grid-2">
+        <div class="cfg-fg"><label>Number of Days</label><input type="number" id="cfg-days" min="1" max="30" value="3" oninput="bOnChange()"></div>
+        <div class="cfg-fg"><label>Hours per Day</label><input type="number" id="cfg-hours" min="2" max="16" value="8" oninput="bOnChange()"></div>
+      </div>
+
+      <div class="cfg-fg" style="margin-top:14px">
+        <label>Attraction Type <span class="opt">(leave blank for all)</span></label>
+        <div id="cfg-categories" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+          <button type="button" class="cat-btn" onclick="toggleCat('Nature and Scenery')">Nature and Scenery</button>
+          <button type="button" class="cat-btn" onclick="toggleCat('Culture and History')">Culture and History</button>
+          <button type="button" class="cat-btn" onclick="toggleCat('City and Shopping')">City and Shopping</button>
+          <button type="button" class="cat-btn" onclick="toggleCat('Adventure')">Adventure</button>
+          <button type="button" class="cat-btn" onclick="toggleCat('Others')">Others</button>
+        </div>
+      </div>
+
+      <div class="config-footer">
+        <div>
+          <div class="places-found" id="places-found">Loading…</div>
+          <div id="last-refreshed" style="font-size:11px;color:var(--ink3);margin-top:4px"></div>
+        </div>
+        <button class="btn btn-p btn-lg" onclick="buildItinerary()">Build Itinerary →</button>
+      </div>
+    </div>
+
+    <div id="b-output"></div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Shared elements -->
+<input type="file" id="file-in" accept=".json" style="position:absolute;opacity:0;width:1px;height:1px">
+<div class="toast" id="toast"></div>
+
+<!-- Journal overlays -->
+<div class="overlay" id="ov-detail" style="display:none">
+  <div class="modal modal-sm">
+    <div class="mhdr"><div class="mhdr-t" id="det-name"></div><button class="btn-x" id="det-x">&#215;</button></div>
+    <div class="mbody" id="det-body"></div>
+  </div>
+</div>
+<div class="overlay" id="ov-form" style="display:none">
+  <div class="modal">
+    <div class="mhdr"><div class="mhdr-t" id="frm-title">Add a Place</div><button class="btn-x" id="frm-x">&#215;</button></div>
+    <div class="mbody" id="frm-body"></div>
+    <div class="mftr">
+      <button class="btn btn-g" id="frm-cancel">Cancel</button>
+      <button class="btn btn-p" id="frm-save">Add to Log</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  SHARED
+// ════════════════════════════════════════════════════════
+const STORAGE_KEY = 'travel_journal_v1';
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['journal','builder'][i] === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+name));
+  if (name === 'builder') { bLoadData(); bPopulateFilters(); bOnChange(); }
+}
+
+let toastTimer;
+function toast(m) {
+  const e = document.getElementById('toast');
+  e.textContent = m; e.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => e.classList.remove('show'), 2800);
+}
+
+function escH(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════
+//  JOURNAL
+// ════════════════════════════════════════════════════════
+(function(){
+  'use strict';
+  const KEY  = STORAGE_KEY;
+  const CONT = ['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
+  const SEAS = ['Year-round','Spring (Mar–May)','Summer (Jun–Aug)','Autumn (Sep–Nov)','Winter (Dec–Feb)','Dry season','Wet season'];
+  const CATS = ['Nature and Scenery','Culture and History','City and Shopping','Adventure','Others'];
+  const CST  = {
+    'Nature and Scenery':{bg:'#EAF3DE',cl:'#3B6D11'},
+    'Culture and History':{bg:'#FAEEDA',cl:'#854F0B'},
+    'City and Shopping':{bg:'#E6F1FB',cl:'#185FA5'},
+    'Adventure':{bg:'#FAECE7',cl:'#993C1D'},
+    'Others':{bg:'#F1EFE8',cl:'#5F5E5A'}
+  };
+  let places=[], editId=null, fRat=0;
+
+  function G(id){ return document.getElementById(id); }
+  function esc(s){ return escH(s); }
+  function stars(n){
+    let h='';
+    for(let i=1;i<=5;i++){
+      const c=i<=n?'#C8973A':'#D5D0C8';
+      h+=`<span class="star"><svg viewBox="0 0 14 14" fill="${c}"><polygon points="7,1 8.8,5.2 13.5,5.7 10,8.8 11,13.5 7,11 3,13.5 4,8.8 0.5,5.7 5.2,5.2"/></svg></span>`;
+    }
+    return h;
+  }
+
+  function load(){ try{ const r=localStorage.getItem(KEY); if(r) places=JSON.parse(r); }catch(e){ places=[]; } }
+  function save(){ localStorage.setItem(KEY,JSON.stringify(places)); }
+
+  function filtered(){
+    const q=G('j-search').value.toLowerCase();
+    const co=G('j-fil-cont').value, ca=G('j-fil-cat').value;
+    const ra=parseInt(G('j-fil-rat').value)||0, so=G('j-fil-sort').value;
+    let l=places.slice();
+    if(co!=='All') l=l.filter(p=>p.continent===co);
+    if(ca!=='All') l=l.filter(p=>p.category===ca);
+    if(ra>0) l=l.filter(p=>(p.rating||0)>=ra);
+    if(q) l=l.filter(p=>[p.location||'',p.country||'',p.state||'',p.comment||'',p.notes||''].join(' ').toLowerCase().includes(q));
+    l.sort((a,b)=>{
+      if(so==='rat-d') return (b.rating||0)-(a.rating||0);
+      if(so==='rat-a') return (a.rating||0)-(b.rating||0);
+      if(so==='az')    return (a.location||'').localeCompare(b.location||'');
+      if(so==='old')   return (a.id||'').localeCompare(b.id||'');
+      return (b.id||'').localeCompare(a.id||'');
+    });
+    return l;
+  }
+
+  function render(){
+    // stats
+    const ctry={},cont={};let tot=0,cnt=0;
+    places.forEach(p=>{
+      if(p.country) ctry[p.country]=1;
+      if(p.continent) cont[p.continent]=1;
+      if(p.rating>0){tot+=p.rating;cnt++;}
+    });
+    const avg=cnt?(tot/cnt).toFixed(1):'&mdash;';
+    G('j-stats').innerHTML=
+      `<div class="stat"><div class="stat-n">${places.length}</div><div class="stat-l">Places</div></div>`+
+      `<div class="stat"><div class="stat-n">${Object.keys(ctry).length}</div><div class="stat-l">Countries</div></div>`+
+      `<div class="stat"><div class="stat-n">${Object.keys(cont).length}</div><div class="stat-l">Continents</div></div>`+
+      `<div class="stat"><div class="stat-n">${avg}</div><div class="stat-l">Avg Rating</div></div>`;
+    // continent filter
+    const sel=G('j-fil-cont'),cur=sel.value;
+    const uc=[];places.forEach(p=>{if(p.continent&&!uc.includes(p.continent))uc.push(p.continent);});uc.sort();
+    sel.innerHTML='<option value="All">All Continents</option>'+uc.map(c=>`<option value="${esc(c)}"${cur===c?' selected':''}>${esc(c)}</option>`).join('');
+    // grid
+    const list=filtered();
+    if(!list.length){
+      G('j-grid').innerHTML=`<div class="empty"><div style="font-size:3rem">✈</div><h3>${places.length?'No places match your filters':'Your travel log is empty'}</h3><p>${places.length?'Try adjusting your search or filters.':'Start by adding a place you\'ve visited.'}</p></div>`;
+      return;
+    }
+    let html='<div class="j-grid">';
+    list.forEach(p=>{
+      const loc=[p.state,p.country].filter(Boolean).join(', ');
+      const cs=CST[p.category];
+      const badge=cs?`<span class="cbadge" style="background:${cs.bg};color:${cs.cl}">${esc(p.category)}</span>`:'';
+      const prev=p.comment?`<div class="jcard-prev">\u201c${esc(p.comment)}\u201d</div>`:'';
+      html+=`<div class="jcard" data-id="${esc(p.id)}">
+        <div class="jcard-top"><div class="jcard-cont">${esc(p.continent)}</div>${badge}</div>
+        <div class="jcard-name">${esc(p.location)}</div>
+        <div class="jcard-loc">${esc(loc)}</div>
+        <div class="jcard-stars">${stars(p.rating||0)}<span class="rtxt">${p.rating>0?p.rating+'/5':'Unrated'}</span></div>
+        ${prev}
+        <div class="jcard-hint"><span>&#8599;</span> View details</div>
+      </div>`;
+    });
+    G('j-grid').innerHTML=html+'</div>';
+  }
+
+  function openDetail(id){
+    const p=places.find(x=>x.id===id); if(!p) return;
+    G('det-name').textContent=p.location;
+    const cs=CST[p.category];
+    const badge=cs?`<span class="cbadge" style="background:${cs.bg};color:${cs.cl};margin-left:8px">${esc(p.category)}</span>`:'';
+    const loc=[p.state,p.country,p.continent].filter(Boolean).join(', ');
+    let h=`<div class="dsec"><div class="dsec-t">Location</div><div class="drow"><span class="dico">&#128205;</span><span>${esc(loc)}</span></div></div>`+
+      `<div class="dsec"><div class="dsec-t">Category &amp; Rating</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">${stars(p.rating||0)}<span style="font-size:12px;color:var(--ink3)">${p.rating>0?p.rating+'/5':'Not yet rated'}</span>${badge}</div></div>`;
+    if(p.comment) h+=`<div class="dsec"><div class="dsec-t">My Review</div><div class="dcomment">${esc(p.comment)}</div></div>`;
+    if(p.best_time||p.hours||p.notes){
+      h+=`<div class="dsec"><div class="dsec-t">Visiting Details</div>`;
+      if(p.best_time) h+=`<div class="drow"><span class="dico">&#9711;</span><span>Best time: <strong>${esc(p.best_time)}</strong></span></div>`;
+      if(p.hours)     h+=`<div class="drow"><span class="dico">&#8987;</span><span>Suggested time: <strong>${esc(p.hours)} hours</strong></span></div>`;
+      if(p.notes)     h+=`<div class="drow"><span class="dico">&#128161;</span><span>${esc(p.notes)}</span></div>`;
+      h+=`</div>`;
+    }
+    h+=`<div class="dactions"><button class="btn btn-s btn-sm" id="det-edit">Edit</button><button class="btn btn-d btn-sm" id="det-del">Remove</button></div>`;
+    G('det-body').innerHTML=h;
+    G('ov-detail').style.display='flex';
+    G('det-edit').onclick=()=>{closeDetail();openForm(id);};
+    G('det-del').onclick=()=>{closeDetail();delPlace(id);};
+  }
+  function closeDetail(){ G('ov-detail').style.display='none'; }
+
+  function openForm(id){
+    editId=id||null;
+    const p=editId?places.find(x=>x.id===editId):{};
+    fRat=(p&&p.rating)||0;
+    G('frm-title').textContent=editId?'Edit Place':'Add a Place';
+    G('frm-save').textContent=editId?'Save Changes':'Add to Log';
+    const coOpts='<option value="">Select...</option>'+CONT.map(c=>`<option value="${esc(c)}"${p.continent===c?' selected':''}>${esc(c)}</option>`).join('');
+    const seOpts='<option value="">Select...</option>'+SEAS.map(s=>`<option value="${esc(s)}"${p.best_time===s?' selected':''}>${esc(s)}</option>`).join('');
+    let spHTML=''; for(let i=1;i<=5;i++) spHTML+=`<span class="sp${fRat>=i?' on':''}" data-n="${i}">&#9733;</span>`;
+    const cpHTML=CATS.map(c=>`<button type="button" class="cpill${p.category===c?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+    G('frm-body').innerHTML=
+      `<div class="fsec"><div class="fsec-t">Location</div>`+
+        `<div class="fg"><label>Place / Location Name <span style="color:var(--rust)">*</span></label><input type="text" id="fi-loc" value="${esc(p.location||'')}" placeholder="e.g. Kyoto, Eiffel Tower"></div>`+
+        `<div class="frow">`+
+          `<div class="fg"><label>Continent <span style="color:var(--rust)">*</span></label><select id="fi-con">${coOpts}</select></div>`+
+          `<div class="fg"><label>Country <span style="color:var(--rust)">*</span></label><input type="text" id="fi-cty" value="${esc(p.country||'')}" placeholder="e.g. Japan"></div>`+
+        `</div>`+
+        `<div class="fg"><label>State / Province <span class="opt">(optional)</span></label><input type="text" id="fi-st" value="${esc(p.state||'')}" placeholder="e.g. Kyoto Prefecture"></div>`+
+      `</div>`+
+      `<div class="fsec"><div class="fsec-t">My Experience</div>`+
+        `<div class="fg"><label>Attraction Category</label><div class="cpicker" id="cpicker">${cpHTML}</div></div>`+
+        `<div class="fg"><label>My Rating</label>`+
+          `<div style="display:flex;align-items:center;gap:10px"><div class="spicker" id="spicker">${spHTML}</div>`+
+          `<span id="clr-star" style="font-size:11px;color:var(--ink3);cursor:pointer;text-decoration:underline;visibility:${fRat>0?'visible':'hidden'}">Clear</span></div>`+
+          `<div style="font-size:11px;color:var(--ink3);margin-top:3px">0 stars = not yet visited &middot; click same star to clear</div></div>`+
+        `<div class="fg"><label>My Comments / Review</label><textarea id="fi-cmt" placeholder="What made this place special?">${esc(p.comment||'')}</textarea></div>`+
+      `</div>`+
+      `<div class="fsec"><div class="fsec-t">Visiting Details</div>`+
+        `<div class="frow">`+
+          `<div class="fg"><label>Best Time to Visit</label><select id="fi-sea">${seOpts}</select></div>`+
+          `<div class="fg"><label>Suggested Hours</label><input type="number" id="fi-hrs" value="${esc(p.hours||'')}" placeholder="e.g. 3" min="0.5" max="72" step="0.5"></div>`+
+        `</div>`+
+        `<div class="fg"><label>Tips &amp; Notes <span class="opt">(optional)</span></label><textarea id="fi-nte" placeholder="Insider tips, nearby gems...">${esc(p.notes||'')}</textarea></div>`+
+      `</div>`;
+    G('spicker').addEventListener('click',e=>{
+      const t=e.target.closest('.sp'); if(!t) return;
+      const n=parseInt(t.dataset.n);
+      fRat=(fRat===n)?0:n; updStar();
+    });
+    G('clr-star').addEventListener('click',()=>{fRat=0;updStar();});
+    G('cpicker').addEventListener('click',e=>{
+      const t=e.target.closest('.cpill'); if(!t) return;
+      G('cpicker').querySelectorAll('.cpill').forEach(b=>b.classList.remove('on'));
+      t.classList.add('on');
+    });
+    G('ov-form').style.display='flex';
+    setTimeout(()=>{ const el=G('fi-loc'); if(el) el.focus(); },50);
+  }
+
+  function updStar(){
+    G('spicker').querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<fRat));
+    G('clr-star').style.visibility=fRat>0?'visible':'hidden';
+  }
+
+  function saveForm(){
+    const loc=G('fi-loc').value.trim(), con=G('fi-con').value, cty=G('fi-cty').value.trim();
+    if(!loc){alert('Please enter a place name.');return;}
+    if(!cty){alert('Please enter a country.');return;}
+    if(!con){alert('Please select a continent.');return;}
+    const ac=G('cpicker').querySelector('.cpill.on');
+    const rec={location:loc,continent:con,country:cty,state:G('fi-st').value.trim(),
+      category:ac?ac.dataset.c:'',rating:fRat,comment:G('fi-cmt').value.trim(),
+      best_time:G('fi-sea').value,hours:G('fi-hrs').value,notes:G('fi-nte').value.trim()};
+    if(editId){
+      const idx=places.findIndex(p=>p.id===editId);
+      if(idx>-1) places[idx]=Object.assign({},places[idx],rec);
+    } else {
+      rec.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      places.push(rec);
+    }
+    save(); closeForm(); render();
+    toast(editId?'Place updated':'Place added to your journal');
+  }
+
+  function closeForm(){ G('ov-form').style.display='none'; editId=null; }
+
+  function delPlace(id){
+    const p=places.find(x=>x.id===id); if(!p) return;
+    if(!confirm(`Remove "${p.location}" from your journal?`)) return;
+    places=places.filter(x=>x.id!==id);
+    save(); render(); toast('Place removed');
+  }
+
+  function doExport(){
+    const blob=new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),places},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='travel-journal-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url); toast('Journal exported');
+  }
+
+  function doImport(file){
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const d=JSON.parse(e.target.result);
+        const inc=Array.isArray(d)?d:(d.places&&Array.isArray(d.places)?d.places:null);
+        if(!inc){toast('Invalid file format');return;}
+        const ex={}; places.forEach(p=>{ex[p.id]=1;});
+        let added=0;
+        inc.forEach(p=>{
+          if(!p.id) p.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+          if(!ex[p.id]){places.push(p);added++;}
+        });
+        save(); render();
+        toast(added>0?`Imported ${added} place${added>1?'s':''}`:' No new places to import');
+      }catch(err){ toast('Could not read file. Is it a valid JSON export?'); }
+    };
+    r.readAsText(file);
+  }
+
+  function clearAll(){
+    if(!confirm(`This will permanently delete all ${places.length} place${places.length!==1?'s':''} from your journal.\n\nTip: Export first to keep a backup.\n\nAre you sure?`)) return;
+    places=[]; save(); render(); toast('All data cleared');
+  }
+
+  // wire events
+  G('btn-add').addEventListener('click',()=>openForm(null));
+  G('btn-export').addEventListener('click',doExport);
+  G('btn-import').addEventListener('click',()=>G('file-in').click());
+  G('btn-clear').addEventListener('click',clearAll);
+  G('file-in').addEventListener('change',function(){ if(this.files&&this.files[0]){doImport(this.files[0]);this.value='';} });
+  G('det-x').addEventListener('click',closeDetail);
+  G('ov-detail').addEventListener('click',e=>{if(e.target===G('ov-detail'))closeDetail();});
+  G('frm-x').addEventListener('click',closeForm);
+  G('frm-cancel').addEventListener('click',closeForm);
+  G('ov-form').addEventListener('click',e=>{if(e.target===G('ov-form'))closeForm();});
+  G('frm-save').addEventListener('click',saveForm);
+  G('j-grid').addEventListener('click',e=>{const c=e.target.closest('.jcard');if(c)openDetail(c.dataset.id);});
+  ['j-search','j-fil-cont','j-fil-cat','j-fil-rat','j-fil-sort'].forEach(id=>{
+    const el=G(id); el.addEventListener('change',render); el.addEventListener('input',render);
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeForm();closeDetail();} });
+
+  load(); render();
+}());
+
+
+// ════════════════════════════════════════════════════════
+//  ITINERARY BUILDER
+// ════════════════════════════════════════════════════════
+const DEFAULT_HOURS = 3;
+const CAT_STYLE = {
+  'Nature and Scenery':{bg:'#EAF3DE',color:'#3B6D11'},
+  'Culture and History':{bg:'#FAEEDA',color:'#854F0B'},
+  'City and Shopping':{bg:'#E6F1FB',color:'#185FA5'},
+  'Adventure':{bg:'#FAECE7',color:'#993C1D'},
+  'Others':{bg:'#F1EFE8',color:'#5F5E5A'},
+};
+let bPlaces=[[], selectedCats=[], selectedProvinces=[], currentMode='single', pdfMeta={}][0];
+bPlaces=[]; // reset
+
+function bLoadData(){
+  try{ const r=localStorage.getItem(STORAGE_KEY); bPlaces=r?JSON.parse(r):[]; }catch(e){bPlaces=[];}
+  const el=document.getElementById('last-refreshed');
+  if(el) el.textContent='Last loaded: '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function bRefresh(){
+  const btn=document.getElementById('refresh-btn');
+  btn.textContent='↺ Refreshing…'; btn.disabled=true;
+  setTimeout(()=>{
+    const before=bPlaces.length;
+    bLoadData(); bPopulateFilters(); bOnChange();
+    const after=bPlaces.length, diff=after-before;
+    toast(diff>0?`Refreshed — ${diff} new place${diff>1?'s':''} added`:diff<0?`Refreshed — ${Math.abs(diff)} place${Math.abs(diff)>1?'s':''} removed`:`Refreshed — ${after} place${after!==1?'s':''} loaded`);
+    btn.textContent='↺ Refresh Data'; btn.disabled=false;
+  },300);
+}
+
+function setMode(mode){
+  currentMode=mode;
+  document.getElementById('mode-single').classList.toggle('active',mode==='single');
+  document.getElementById('mode-multi').classList.toggle('active',mode==='multi');
+  document.getElementById('panel-single').style.display=mode==='single'?'':'none';
+  document.getElementById('panel-multi').style.display=mode==='multi'?'':'none';
+  document.getElementById('opt-country').textContent=mode==='multi'?'(required)':'(optional)';
+  selectedProvinces=[];
+  if(mode==='multi') bRefreshProvincePicker();
+  bOnChange();
+}
+
+function bPopulateFilters(){
+  const continents=[...new Set(bPlaces.map(p=>p.continent).filter(Boolean))].sort();
+  const cSel=document.getElementById('cfg-continent'), prev=cSel.value;
+  cSel.innerHTML='<option value="">All Continents</option>'+continents.map(c=>`<option value="${escH(c)}"${c===prev?' selected':''}>${escH(c)}</option>`).join('');
+  cSel.onchange=()=>{bRefreshCountries();bOnChange();};
+  document.getElementById('cfg-country').onchange=()=>{bRefreshStates();bOnChange();};
+  bRefreshCountries();
+}
+
+function bRefreshCountries(){
+  const continent=document.getElementById('cfg-continent').value;
+  const filtered=bPlaces.filter(p=>!continent||p.continent===continent);
+  const countries=[...new Set(filtered.map(p=>p.country).filter(Boolean))].sort();
+  const sel=document.getElementById('cfg-country'), prev=sel.value;
+  sel.innerHTML='<option value="">All Countries</option>'+countries.map(c=>`<option value="${escH(c)}"${c===prev?' selected':''}>${escH(c)}</option>`).join('');
+  bRefreshStates();
+}
+
+function bRefreshStates(){
+  const continent=document.getElementById('cfg-continent').value;
+  const country=document.getElementById('cfg-country').value;
+  const filtered=bPlaces.filter(p=>(!continent||p.continent===continent)&&(!country||p.country===country));
+  const states=[...new Set(filtered.map(p=>p.state).filter(Boolean))].sort();
+  const sel=document.getElementById('cfg-state');
+  sel.innerHTML='<option value="">All Regions</option>'+states.map(s=>`<option value="${escH(s)}">${escH(s)}</option>`).join('');
+  bRefreshProvincePicker();
+  bOnChange();
+}
+
+function bRefreshProvincePicker(){
+  const continent=document.getElementById('cfg-continent').value;
+  const country=document.getElementById('cfg-country').value;
+  const picker=document.getElementById('province-picker');
+  if(!picker) return;
+  if(!country){picker.innerHTML='<span style="font-size:12px;color:var(--ink3);font-style:italic">Select a country first.</span>';selectedProvinces=[];return;}
+  const filtered=bPlaces.filter(p=>(!continent||p.continent===continent)&&p.country===country&&p.state);
+  const states=[...new Set(filtered.map(p=>p.state))].sort();
+  if(!states.length){picker.innerHTML='<span style="font-size:12px;color:var(--ink3);font-style:italic">No provinces found for this country.</span>';selectedProvinces=[];return;}
+  selectedProvinces=selectedProvinces.filter(s=>states.includes(s));
+  picker.innerHTML=states.map(s=>`<button type="button" class="cat-btn${selectedProvinces.includes(s)?' active':''}" onclick="toggleProvince('${escH(s)}')">${escH(s)}</button>`).join('');
+}
+
+function toggleProvince(name){
+  selectedProvinces.includes(name)?selectedProvinces=selectedProvinces.filter(s=>s!==name):selectedProvinces.push(name);
+  document.querySelectorAll('#province-picker .cat-btn').forEach(btn=>btn.classList.toggle('active',selectedProvinces.includes(btn.textContent.trim())));
+  bOnChange();
+}
+
+function toggleCat(name){
+  selectedCats.includes(name)?selectedCats=selectedCats.filter(c=>c!==name):selectedCats.push(name);
+  document.querySelectorAll('#cfg-categories .cat-btn').forEach(btn=>btn.classList.toggle('active',selectedCats.includes(btn.textContent.trim())));
+  bOnChange();
+}
+
+function bGetMatches(){
+  const continent=document.getElementById('cfg-continent').value;
+  const country=document.getElementById('cfg-country').value;
+  const state=currentMode==='single'?document.getElementById('cfg-state').value:'';
+  const provinces=currentMode==='multi'?selectedProvinces:[];
+  return bPlaces.filter(p=>{
+    if(continent&&p.continent!==continent) return false;
+    if(country&&p.country!==country) return false;
+    if(state&&p.state!==state) return false;
+    if(provinces.length>0&&!provinces.includes(p.state)) return false;
+    if(selectedCats.length>0&&!selectedCats.includes(p.category)) return false;
+    return true;
+  });
+}
+
+function bOnChange(){
+  const matches=bGetMatches(), days=parseInt(document.getElementById('cfg-days').value)||1;
+  const el=document.getElementById('places-found');
+  if(!el) return;
+  if(!bPlaces.length) el.innerHTML='<span style="color:var(--rust)">No places found. Switch to the Journal tab to add some.</span>';
+  else if(currentMode==='multi'&&!document.getElementById('cfg-country').value) el.innerHTML='<span style="color:var(--ink3)">Select a country to begin.</span>';
+  else if(currentMode==='multi'&&selectedProvinces.length===0) el.innerHTML=`<strong>${matches.length}</strong> place${matches.length!==1?'s':''} available &nbsp;·&nbsp; Select provinces above to build your route.`;
+  else el.innerHTML=`<strong>${matches.length}</strong> place${matches.length!==1?'s':''} match your filters &nbsp;·&nbsp; <strong>${days}</strong> day${days!==1?'s':''}`;
+}
+
+function buildItinerary(){
+  const days=Math.max(1,parseInt(document.getElementById('cfg-days').value)||3);
+  const hoursDay=Math.max(2,parseFloat(document.getElementById('cfg-hours').value)||8);
+  const country=document.getElementById('cfg-country').value;
+  if(currentMode==='multi'){
+    if(!country){toast('Please select a country for multi-province mode.');return;}
+    if(!selectedProvinces.length){toast('Please select at least one province.');return;}
+    bBuildMulti(days,hoursDay);
+  } else {
+    bBuildSingle(days,hoursDay);
+  }
+}
+
+function bBuildSingle(days,hoursDay){
+  const matches=bGetMatches();
+  if(!matches.length){bShowEmpty();return;}
+  const sorted=bSortByRating(matches);
+  const schedule=Array.from({length:days},()=>[]);
+  const dayHours=Array(days).fill(0);
+  const leftover=[];
+  for(const place of sorted){
+    const hrs=parseFloat(place.hours)||DEFAULT_HOURS;
+    let placed=false;
+    for(let d=0;d<days;d++){
+      const thr=schedule[d].length>0?1:0;
+      if(dayHours[d]+hrs+thr<=hoursDay){
+        schedule[d].push({...place,_hrs:hrs});
+        dayHours[d]+=hrs+thr;
+        placed=true; break;
+      }
+    }
+    if(!placed) leftover.push(place);
+  }
+  pdfMeta={mode:'single',country:document.getElementById('cfg-country').value,state:document.getElementById('cfg-state').value,continent:document.getElementById('cfg-continent').value||'Trip',days,cats:selectedCats};
+  let html=bSummaryBar([document.getElementById('cfg-state').value,document.getElementById('cfg-country').value,document.getElementById('cfg-continent').value||'Trip'].filter(Boolean).join(', '),days,schedule.reduce((a,d)=>a+d.length,0),hoursDay,bAvgRating(schedule.flat()));
+  for(let d=0;d<days;d++) html+=bRenderDay(d+1,schedule[d]||[],dayHours[d]||0,null);
+  html+=bRenderLeftover(leftover,days)+bActionBar();
+  bFinalize(html);
+}
+
+function bBuildMulti(days,hoursDay){
+  const matches=bGetMatches();
+  if(!matches.length){bShowEmpty();return;}
+  const country=document.getElementById('cfg-country').value;
+  const routedProvinces=bRouteProvinces(selectedProvinces,country);
+  const routeChanged=routedProvinces.join('|')!==selectedProvinces.join('|');
+  const grouped={};
+  routedProvinces.forEach(p=>{grouped[p]=[];});
+  matches.forEach(place=>{if(grouped[place.state])grouped[place.state].push(place);});
+  routedProvinces.forEach(prov=>{grouped[prov]=bSortByRating(grouped[prov]);});
+
+  function naturalDays(places){
+    let d=0,curHrs=0;
+    for(const place of places){
+      const hrs=parseFloat(place.hours)||DEFAULT_HOURS;
+      if(hrs>hoursDay) continue;
+      const travel=curHrs>0?1:0;
+      if(curHrs>0&&curHrs+hrs+travel>hoursDay){d++;curHrs=0;}
+      curHrs+=hrs+(curHrs>0?1:0);
+    }
+    if(curHrs>0) d++;
+    return Math.max(1,d);
+  }
+
+  const activeProv=routedProvinces.filter(p=>grouped[p].length>0);
+  const naturalMap={};
+  activeProv.forEach(p=>{naturalMap[p]=naturalDays(grouped[p]);});
+  const totalNatural=activeProv.reduce((a,p)=>a+naturalMap[p],0);
+  const allocMap={};
+
+  if(totalNatural<=days){
+    activeProv.forEach(p=>{allocMap[p]=naturalMap[p];});
+  } else {
+    let provList=activeProv;
+    if(provList.length>days){
+      provList=[...activeProv].sort((a,b)=>grouped[b].reduce((s,p)=>s+(p.rating||0),0)-grouped[a].reduce((s,p)=>s+(p.rating||0),0)).slice(0,days);
+      provList=activeProv.filter(p=>provList.includes(p));
+    }
+    provList.forEach(p=>{allocMap[p]=1;});
+    let remaining=days-provList.length;
+    if(remaining>0){
+      const sortedProv=[...provList].sort((a,b)=>naturalMap[b]-naturalMap[a]);
+      for(const p of sortedProv){
+        if(remaining<=0) break;
+        const extra=Math.min(remaining,Math.max(0,naturalMap[p]-1));
+        allocMap[p]+=extra; remaining-=extra;
+      }
+      if(remaining>0) for(const p of sortedProv){if(remaining<=0)break;if(allocMap[p]<naturalMap[p]){allocMap[p]++;remaining--;}}
+    }
+  }
+
+  const schedule=[],dayHours=[],leftover=[];
+  for(const prov of activeProv){
+    const daysForProv=allocMap[prov]||0;
+    if(!daysForProv){grouped[prov].forEach(p=>leftover.push(p));continue;}
+    const places=grouped[prov];
+    let dayCount=0,curPlaces=[],curHrs=0;
+    for(const place of places){
+      const hrs=parseFloat(place.hours)||DEFAULT_HOURS;
+      if(hrs>hoursDay){leftover.push(place);continue;}
+      const travel=curPlaces.length>0?1:0;
+      if(curPlaces.length>0&&curHrs+hrs+travel>hoursDay){
+        schedule.push({province:prov,places:curPlaces}); dayHours.push(curHrs); dayCount++;
+        curPlaces=[]; curHrs=0;
+        if(dayCount>=daysForProv){leftover.push(place);continue;}
+      }
+      if(dayCount>=daysForProv){leftover.push(place);continue;}
+      curPlaces.push({...place,_hrs:hrs});
+      curHrs+=hrs+(curPlaces.length>1?1:0);
+    }
+    if(curPlaces.length>0&&dayCount<daysForProv){schedule.push({province:prov,places:curPlaces});dayHours.push(curHrs);}
+  }
+
+  pdfMeta={mode:'multi',country,continent:document.getElementById('cfg-continent').value||'Trip',days:schedule.length,provinces:routedProvinces,cats:selectedCats};
+
+  const tripTitle=[country,document.getElementById('cfg-continent').value||'Trip'].filter(Boolean).join(', ');
+  const totalPlaces=schedule.reduce((a,d)=>a+d.places.length,0);
+  const routeBanner=routedProvinces&&routedProvinces.length>1
+    ?`<div style="background:var(--sand2);border:1px solid var(--sand3);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--ink2);margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:8px"><span style="color:var(--gold);flex-shrink:0">📍</span><div><span style="font-weight:500">Optimised route${routeChanged?' (reordered for proximity)':''}:</span>&nbsp;${routedProvinces.map(p=>escH(p)).join(' → ')}</div></div>`:'';
+
+  let html=bSummaryBar(tripTitle,schedule.length,totalPlaces,hoursDay,bAvgRating(schedule.flatMap(d=>d.places)))+routeBanner;
+  let globalDay=1,prevProvince=null;
+  for(let i=0;i<schedule.length;i++){
+    const {province,places}=schedule[i];
+    if(province!==prevProvince&&prevProvince!==null){
+      html+=`<div style="display:flex;align-items:center;gap:10px;margin:1.5rem 0 1rem"><div style="flex:1;height:1px;background:var(--sand3)"></div><div style="font-size:11px;color:var(--ink3);white-space:nowrap">🚌 Travel to ${escH(province)}</div><div style="flex:1;height:1px;background:var(--sand3)"></div></div>`;
+    }
+    prevProvince=province;
+    html+=bRenderDay(globalDay++,places,dayHours[i],province);
+  }
+  html+=bRenderLeftover(leftover,days)+bActionBar();
+  bFinalize(html);
+}
+
+function bSummaryBar(title,days,totalPlaces,hoursDay,avgRating){
+  const catLabel=selectedCats.length?selectedCats.join(' · '):'All types';
+  return `<div class="section-heading"><h2>${escH(title)}</h2><div class="section-meta">${catLabel} &nbsp;·&nbsp; ${days} day${days>1?'s':''}</div></div>`+
+    `<div class="summary-bar">`+
+    `<div class="sstat"><div class="sstat-n">${days}</div><div class="sstat-l">Days</div></div>`+
+    `<div class="sstat"><div class="sstat-n">${totalPlaces}</div><div class="sstat-l">Attractions</div></div>`+
+    `<div class="sstat"><div class="sstat-n">${hoursDay}</div><div class="sstat-l">Hrs / Day</div></div>`+
+    `<div class="sstat"><div class="sstat-n">${avgRating}</div><div class="sstat-l">Avg Rating</div></div>`+
+    `</div>`;
+}
+
+function bAvgRating(places){
+  const rated=places.filter(p=>p.rating>0).map(p=>p.rating);
+  return rated.length?(rated.reduce((a,b)=>a+b,0)/rated.length).toFixed(1):'—';
+}
+
+function bRenderDay(dayNum,places,usedHours,province){
+  if(!places||!places.length)
+    return `<div class="day-block"><div class="day-header"><div class="day-label">Day ${dayNum}</div><div class="day-title" style="color:var(--ink3);font-style:italic">Free day</div><div class="day-rule"></div></div></div>`;
+  const theme=province?escH(province):bGetDayTheme(places);
+  const hoursNote=usedHours>0?`${usedHours.toFixed(1)} hrs`:'';
+  const provBadge=province?`<span style="font-size:10px;background:var(--sand2);border:1px solid var(--bdr2);padding:2px 9px;border-radius:10px;color:var(--ink2);white-space:nowrap">${escH(province)}</span>`:'';
+  let html=`<div class="day-block"><div class="day-header"><div class="day-label">Day ${dayNum}</div>${provBadge}<div class="day-title">${theme}</div><div class="day-rule"></div><div style="font-size:11px;color:var(--ink3);white-space:nowrap">${hoursNote}</div></div>`;
+  let timeMin=9*60;
+  for(let i=0;i<places.length;i++){
+    const p=places[i];
+    const startTime=bFmtTime(timeMin);
+    timeMin+=p._hrs*60;
+    const endTime=bFmtTime(timeMin);
+    if(i<places.length-1) timeMin+=60;
+    const cs=p.category&&CAT_STYLE[p.category]?CAT_STYLE[p.category]:null;
+    const catBadge=cs?`<span class="itin-badge" style="background:${cs.bg};color:${cs.color}">${escH(p.category)}</span>`:'';
+    const locParts=[p.state,p.country].filter(Boolean).join(', ');
+    html+=`<div class="place-row">
+      <div class="place-time"><div class="place-time-val">${startTime}</div><div class="place-time-lbl">to ${endTime}</div></div>
+      <div class="place-body">
+        <div class="place-name">${escH(p.location)}</div>
+        <div class="place-loc">${escH(locParts)}</div>
+        <div class="place-rating">${bStarsHTML(p.rating||0)}<span style="font-size:10.5px;color:var(--ink3);margin-left:4px">${p.rating>0?p.rating+'/5':'Unrated'}</span></div>
+        ${p.comment?`<div class="place-comment">"${escH(p.comment)}"</div>`:''}
+        ${p.notes?`<div class="place-tips"><span class="place-tips-icon">💡</span><span>${escH(p.notes)}</span></div>`:''}
+      </div>
+      <div class="place-badge-col">
+        ${catBadge}
+        ${p.best_time?`<div class="best-time-badge">◷ ${escH(p.best_time)}</div>`:''}
+        <div style="font-size:10.5px;color:var(--ink3);margin-top:auto">${p._hrs} hr${p._hrs!==1?'s':''}</div>
+      </div>
+    </div>`;
+    if(i<places.length-1) html+=`<div class="travel-connector">🚗 60 min travel to next stop</div>`;
+  }
+  return html+'</div>';
+}
+
+function bRenderLeftover(leftover,days){
+  if(!leftover||!leftover.length) return '';
+  return `<div class="unscheduled"><div class="unscheduled-title">Not scheduled (${leftover.length} place${leftover.length>1?'s':''} didn't fit within the ${days}-day budget)</div><div class="unscheduled-grid">${leftover.map(p=>`<div class="unsched-card"><div class="unsched-name">${escH(p.location)}</div><div class="unsched-loc">${escH([p.state,p.country].filter(Boolean).join(', '))}</div><div style="font-size:10.5px;color:var(--ink3);margin-top:4px">${escH(p.hours||DEFAULT_HOURS)} hrs suggested</div></div>`).join('')}</div></div>`;
+}
+
+function bActionBar(){
+  return `<div class="no-print" style="display:flex;gap:10px;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--sand3);flex-wrap:wrap;align-items:center">
+    <button class="btn btn-p" onclick="bSavePDF()" id="pdf-btn">↓ Save as PDF</button>
+    <button class="btn btn-s" onclick="bExportJSON()">↓ Export JSON</button>
+    <button class="btn btn-g" onclick="window.print()">🖨 Print</button>
+    <button class="btn btn-g" onclick="document.getElementById('b-output').innerHTML=''">✕ Clear</button>
+    <span id="pdf-status" style="font-size:12px;color:var(--ink3);margin-left:4px"></span>
+  </div>`;
+}
+
+function bFinalize(html){
+  document.getElementById('b-output').innerHTML=html;
+  document.getElementById('b-output').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function bShowEmpty(){
+  document.getElementById('b-output').innerHTML=`<div class="empty"><div style="font-size:2.5rem">🗺</div><h3>No matching places</h3><p>Try broadening your filters, or add more places in the Journal tab.</p></div>`;
+}
+
+// ── PDF ───────────────────────────────────────────────
+function bBuildFilename(){
+  const now=new Date();
+  const date=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  const clean=s=>(s||'').replace(/[^a-zA-Z0-9\s]/g,'').trim().replace(/\s+/g,'-').slice(0,24);
+  const country=clean(pdfMeta.country||pdfMeta.continent||'Trip');
+  const days=pdfMeta.days||1;
+  let location;
+  if(pdfMeta.mode==='multi'&&pdfMeta.provinces&&pdfMeta.provinces.length){
+    const provs=pdfMeta.provinces;
+    location=provs.length===1?clean(provs[0]):clean(provs[0])+'-to-'+clean(provs[provs.length-1]);
+  } else {
+    location=clean(pdfMeta.state)||country;
+  }
+  const abbr={'Nature and Scenery':'Scenery','Culture and History':'History','City and Shopping':'City','Adventure':'Adv','Others':'Misc'};
+  const catTag=pdfMeta.cats&&pdfMeta.cats.length?'_'+pdfMeta.cats.map(c=>abbr[c]||clean(c).slice(0,6)).join('-'):'';
+  return `Itinerary_${country}_${location}_${days}D${catTag}_${date}.pdf`;
+}
+
+function bSavePDF(){
+  const btn=document.getElementById('pdf-btn'), status=document.getElementById('pdf-status');
+  if(!btn) return;
+  const outputEl=document.getElementById('b-output');
+  const clone=outputEl.cloneNode(true);
+  const ab=clone.querySelector('.no-print'); if(ab) ab.remove();
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText="font-family:'DM Sans',sans-serif;font-size:13px;color:#1C1A16;padding:24px 28px;background:#fff;max-width:860px;";
+  wrapper.appendChild(clone);
+  const filename=bBuildFilename();
+  btn.textContent='⏳ Generating…'; btn.disabled=true; status.textContent='';
+  html2pdf().set({margin:[10,10,12,10],filename,image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true,logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['avoid-all','css']}}).from(wrapper).save()
+    .then(()=>{ btn.textContent='↓ Save as PDF'; btn.disabled=false; status.textContent=`Saved: ${filename}`; setTimeout(()=>{if(status)status.textContent='';},5000); })
+    .catch(err=>{ btn.textContent='↓ Save as PDF'; btn.disabled=false; status.textContent='PDF failed — try Print instead.'; console.error(err); });
+}
+
+function bExportJSON(){
+  const continent=document.getElementById('cfg-continent').value||'trip';
+  const days=document.getElementById('cfg-days').value;
+  const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),mode:currentMode,continent,days:parseInt(days),categories:selectedCats,provinces:selectedProvinces,itinerary:document.getElementById('b-output').innerText},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url;
+  a.download=`itinerary-${continent.toLowerCase().replace(/\s+/g,'-')}-${days}days-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── Geo routing ───────────────────────────────────────
+const GEO={
+  'Malaysia|Johor':['1.4854','103.7618'],'Malaysia|Kedah':['6.1184','100.3685'],'Malaysia|Kelantan':['5.7417','102.1797'],'Malaysia|Kuala Lumpur':['3.1390','101.6869'],'Malaysia|Labuan':['5.2831','115.2308'],'Malaysia|Melaka':['2.1896','102.2501'],'Malaysia|Negeri Sembilan':['2.7258','101.9424'],'Malaysia|Pahang':['3.8126','103.3256'],'Malaysia|Penang':['5.4141','100.3288'],'Malaysia|Perak':['4.5921','101.0901'],'Malaysia|Perlis':['6.4449','100.2048'],'Malaysia|Putrajaya':['2.9264','101.6964'],'Malaysia|Sabah':['5.9788','116.0753'],'Malaysia|Sarawak':['1.5533','110.3592'],'Malaysia|Selangor':['3.0738','101.5183'],'Malaysia|Terengganu':['5.3117','103.1324'],
+  'Indonesia|Aceh':['4.6951','96.7494'],'Indonesia|Bali':['-8.3405','115.0920'],'Indonesia|Bangka Belitung':['-2.7410','106.4406'],'Indonesia|Banten':['-6.4058','106.0640'],'Indonesia|Bengkulu':['-3.7928','102.2608'],'Indonesia|East Java':['-7.5360','112.2384'],'Indonesia|East Kalimantan':['0.5387','116.4194'],'Indonesia|East Nusa Tenggara':['-8.6574','121.0794'],'Indonesia|Gorontalo':['0.5435','123.0568'],'Indonesia|Jakarta':['-6.2088','106.8456'],'Indonesia|Jambi':['-1.6101','103.6131'],'Indonesia|Lampung':['-4.5586','105.4068'],'Indonesia|Maluku':['-3.2385','130.1453'],'Indonesia|North Kalimantan':['3.0730','116.0413'],'Indonesia|North Maluku':['1.5709','127.8088'],'Indonesia|North Sulawesi':['0.6246','123.9750'],'Indonesia|North Sumatra':['2.1154','99.5451'],'Indonesia|Papua':['-4.2699','138.0804'],'Indonesia|Riau':['0.2933','101.7068'],'Indonesia|Riau Islands':['3.9457','108.1429'],'Indonesia|South Kalimantan':['-3.0926','115.2838'],'Indonesia|South Sulawesi':['-3.6688','119.9741'],'Indonesia|South Sumatra':['-3.3194','104.9144'],'Indonesia|Southeast Sulawesi':['-4.1448','122.1746'],'Indonesia|West Java':['-6.9039','107.6186'],'Indonesia|West Kalimantan':['0.0000','109.3333'],'Indonesia|West Nusa Tenggara':['-8.6529','117.3616'],'Indonesia|West Papua':['-1.3361','133.1747'],'Indonesia|West Sulawesi':['-2.8441','119.2320'],'Indonesia|West Sumatra':['-0.7399','100.8000'],'Indonesia|Yogyakarta':['-7.7956','110.3695'],
+  'Thailand|Bangkok':['13.7563','100.5018'],'Thailand|Chiang Mai':['18.7883','98.9853'],'Thailand|Chiang Rai':['19.9105','99.8406'],'Thailand|Kanchanaburi':['14.0023','99.5328'],'Thailand|Khon Kaen':['16.4419','102.8360'],'Thailand|Krabi':['8.0863','98.9063'],'Thailand|Nakhon Ratchasima':['14.9799','102.0978'],'Thailand|Pattaya':['12.9236','100.8825'],'Thailand|Phang Nga':['8.4501','98.5275'],'Thailand|Phuket':['7.8804','98.3923'],'Thailand|Samui':['9.5120','100.0136'],'Thailand|Sukhothai':['17.0069','99.8265'],
+  'Vietnam|Hanoi':['21.0285','105.8542'],'Vietnam|Ho Chi Minh City':['10.8231','106.6297'],'Vietnam|Da Nang':['16.0544','108.2022'],'Vietnam|Ha Long':['20.9101','107.1839'],'Vietnam|Hoi An':['15.8801','108.3380'],'Vietnam|Hue':['16.4637','107.5909'],'Vietnam|Nha Trang':['12.2388','109.1967'],'Vietnam|Phu Quoc':['10.2899','103.9840'],'Vietnam|Sapa':['22.3363','103.8438'],
+  'Japan|Aichi':['35.1802','136.9066'],'Japan|Aomori':['40.8244','140.7440'],'Japan|Chiba':['35.6054','140.1233'],'Japan|Fukuoka':['33.5904','130.4017'],'Japan|Hiroshima':['34.3853','132.4553'],'Japan|Hokkaido':['43.0642','141.3469'],'Japan|Hyogo':['34.6913','135.1830'],'Japan|Kanagawa':['35.4478','139.6425'],'Japan|Kyoto':['35.0116','135.7681'],'Japan|Mie':['34.7303','136.5086'],'Japan|Nara':['34.6851','135.8050'],'Japan|Okinawa':['26.2124','127.6791'],'Japan|Osaka':['34.6937','135.5023'],'Japan|Saitama':['35.8617','139.6455'],'Japan|Shizuoka':['34.9769','138.3831'],'Japan|Tokyo':['35.6762','139.6503'],'Japan|Yamanashi':['35.6635','138.5684'],
+  'China|Anhui':['31.8257','117.2264'],'China|Beijing':['39.9042','116.4074'],'China|Chongqing':['29.4316','106.9123'],'China|Fujian':['26.0789','117.9874'],'China|Gansu':['35.7522','104.6675'],'China|Guangdong':['23.3790','113.7633'],'China|Guangxi':['23.7247','108.7881'],'China|Guizhou':['26.8154','106.8748'],'China|Hainan':['19.5617','109.9497'],'China|Hebei':['38.0428','114.5149'],'China|Heilongjiang':['47.8612','127.7615'],'China|Henan':['33.8820','113.6140'],'China|Hubei':['30.9756','112.2707'],'China|Hunan':['27.6104','111.7088'],'China|Inner Mongolia':['43.3751','115.9982'],'China|Jiangsu':['32.9711','119.4550'],'China|Jiangxi':['27.0880','114.9042'],'China|Jilin':['43.8378','126.5496'],'China|Liaoning':['41.2956','122.6085'],'China|Qinghai':['35.7452','95.9956'],'China|Shaanxi':['35.1917','108.8701'],'China|Shandong':['36.6683','117.0208'],'China|Shanghai':['31.2304','121.4737'],'China|Shanxi':['37.5777','112.2922'],'China|Sichuan':['30.6571','102.7103'],'China|Tibet':['31.1048','97.1726'],'China|Xinjiang':['42.1248','87.1949'],'China|Yunnan':['24.4753','101.3431'],'China|Zhejiang':['29.1832','120.0934'],
+  'Australia|Australian Capital Territory':['-35.4735','149.0124'],'Australia|New South Wales':['-31.2532','146.9211'],'Australia|Northern Territory':['-19.4914','132.5510'],'Australia|Queensland':['-20.9176','142.7028'],'Australia|South Australia':['-30.0002','136.2092'],'Australia|Tasmania':['-41.4545','145.9707'],'Australia|Victoria':['-36.5986','144.6780'],'Australia|Western Australia':['-25.0443','121.6283'],
+  'United States|Alabama':['32.3617','-86.2792'],'United States|Alaska':['64.2008','-153.4937'],'United States|Arizona':['34.0489','-111.0937'],'United States|Arkansas':['34.7465','-92.2896'],'United States|California':['36.7783','-119.4179'],'United States|Colorado':['39.5501','-105.7821'],'United States|Connecticut':['41.6032','-73.0877'],'United States|Florida':['27.7663','-81.6868'],'United States|Georgia':['32.1656','-82.9001'],'United States|Hawaii':['19.8968','-155.5828'],'United States|Idaho':['44.0682','-114.7420'],'United States|Illinois':['40.6331','-89.3985'],'United States|Indiana':['40.2672','-86.1349'],'United States|Iowa':['41.8780','-93.0977'],'United States|Kansas':['38.5266','-96.7265'],'United States|Kentucky':['37.6681','-84.6701'],'United States|Louisiana':['30.9843','-91.9623'],'United States|Maine':['45.2538','-69.4455'],'United States|Maryland':['39.0458','-76.6413'],'United States|Massachusetts':['42.4072','-71.3824'],'United States|Michigan':['44.3148','-85.6024'],'United States|Minnesota':['46.7296','-94.6859'],'United States|Mississippi':['32.3547','-89.3985'],'United States|Missouri':['37.9643','-91.8318'],'United States|Montana':['46.8797','-110.3626'],'United States|Nebraska':['41.4925','-99.9018'],'United States|Nevada':['38.8026','-116.4194'],'United States|New Hampshire':['43.1939','-71.5724'],'United States|New Jersey':['40.0583','-74.4057'],'United States|New Mexico':['34.5199','-105.8701'],'United States|New York':['42.1657','-74.9481'],'United States|North Carolina':['35.6301','-79.8064'],'United States|North Dakota':['47.5515','-101.0020'],'United States|Ohio':['40.4173','-82.9071'],'United States|Oklahoma':['35.4676','-97.5164'],'United States|Oregon':['43.8041','-120.5542'],'United States|Pennsylvania':['41.2033','-77.1945'],'United States|Rhode Island':['41.6809','-71.5118'],'United States|South Carolina':['33.8361','-81.1637'],'United States|South Dakota':['43.9695','-99.9018'],'United States|Tennessee':['35.7478','-86.6923'],'United States|Texas':['31.9686','-99.9018'],'United States|Utah':['39.3210','-111.0937'],'United States|Vermont':['44.5588','-72.5778'],'United States|Virginia':['37.4316','-78.6569'],'United States|Washington':['47.7511','-120.7401'],'United States|West Virginia':['38.5976','-80.4549'],'United States|Wisconsin':['43.7844','-88.7879'],'United States|Wyoming':['43.0760','-107.2903'],
+  'Canada|Alberta':['53.9333','-116.5765'],'Canada|British Columbia':['53.7267','-127.6476'],'Canada|Manitoba':['53.7609','-98.8139'],'Canada|New Brunswick':['46.5653','-66.4619'],'Canada|Newfoundland and Labrador':['53.1355','-57.6604'],'Canada|Northwest Territories':['64.2667','-119.1833'],'Canada|Nova Scotia':['44.6820','-63.7443'],'Canada|Nunavut':['70.2998','-83.1076'],'Canada|Ontario':['51.2538','-85.3232'],'Canada|Prince Edward Island':['46.5107','-63.4168'],'Canada|Quebec':['52.9399','-73.5491'],'Canada|Saskatchewan':['52.9399','-106.4509'],'Canada|Yukon':['64.2823','-135.0000'],
+  'United Kingdom|East of England':['52.2405','0.5022'],'United Kingdom|East Midlands':['52.8379','-1.2817'],'United Kingdom|London':['51.5074','-0.1278'],'United Kingdom|North East England':['54.9784','-1.6174'],'United Kingdom|North West England':['53.5152','-2.5955'],'United Kingdom|Northern Ireland':['54.7877','-6.4923'],'United Kingdom|Scotland':['56.4907','-4.2026'],'United Kingdom|South East England':['51.2787','-0.7544'],'United Kingdom|South West England':['50.7772','-3.9995'],'United Kingdom|Wales':['52.1307','-3.7837'],'United Kingdom|West Midlands':['52.4862','-1.8904'],'United Kingdom|Yorkshire':['53.9590','-1.0873'],
+  'Germany|Baden-Württemberg':['48.6616','9.3501'],'Germany|Bavaria':['48.7904','11.4979'],'Germany|Berlin':['52.5200','13.4050'],'Germany|Brandenburg':['52.4125','12.5316'],'Germany|Bremen':['53.0793','8.8017'],'Germany|Hamburg':['53.5488','9.9872'],'Germany|Hesse':['50.6521','9.1624'],'Germany|Lower Saxony':['52.6367','9.8451'],'Germany|Mecklenburg-Vorpommern':['53.6127','12.4297'],'Germany|North Rhine-Westphalia':['51.4332','7.6616'],'Germany|Rhineland-Palatinate':['50.1183','7.3089'],'Germany|Saarland':['49.3964','7.0229'],'Germany|Saxony':['50.9318','13.4483'],'Germany|Saxony-Anhalt':['51.9503','11.6923'],'Germany|Schleswig-Holstein':['54.2194','9.6961'],'Germany|Thuringia':['50.9119','11.3803'],
+  'France|Auvergne-Rhône-Alpes':['45.4478','4.3852'],'France|Bourgogne-Franche-Comté':['47.2805','5.0000'],'France|Brittany':['48.2020','-2.9326'],'France|Centre-Val de Loire':['47.7516','1.6751'],'France|Corsica':['42.0396','9.0129'],'France|Grand Est':['48.6998','7.5287'],'France|Hauts-de-France':['50.4801','2.7932'],'France|Île-de-France':['48.8499','2.6370'],'France|Normandy':['49.1825','0.3708'],'France|Nouvelle-Aquitaine':['44.7122','-0.6200'],'France|Occitanie':['43.6047','2.3490'],'France|Paris':['48.8566','2.3522'],'France|Pays de la Loire':['47.7630','-0.3298'],"France|Provence-Alpes-Côte d'Azur":['43.9352','6.0679'],
+  'Italy|Abruzzo':['42.3546','13.3918'],'Italy|Apulia':['40.7934','16.5580'],'Italy|Basilicata':['40.6353','15.9694'],'Italy|Calabria':['38.9050','16.5950'],'Italy|Campania':['40.8359','14.2488'],'Italy|Emilia-Romagna':['44.4938','11.3426'],'Italy|Friuli-Venezia Giulia':['46.0697','13.2330'],'Italy|Lazio':['41.9028','12.4964'],'Italy|Liguria':['44.3167','8.3964'],'Italy|Lombardy':['45.6495','9.6819'],'Italy|Marche':['43.3169','13.3563'],'Italy|Molise':['41.5600','14.6680'],'Italy|Piedmont':['45.0703','7.6869'],'Italy|Rome':['41.9028','12.4964'],'Italy|Sardinia':['40.1209','9.0129'],'Italy|Sicily':['37.5999','14.0154'],'Italy|Trentino-Alto Adige':['46.4995','11.3548'],'Italy|Tuscany':['43.7711','11.2486'],'Italy|Umbria':['43.1122','12.3888'],'Italy|Veneto':['45.4414','12.3155'],
+  'Spain|Andalusia':['37.5443','-4.7278'],'Spain|Aragon':['41.5976','-0.9057'],'Spain|Asturias':['43.3614','-5.8593'],'Spain|Balearic Islands':['39.6953','3.0176'],'Spain|Basque Country':['42.9896','-2.6189'],'Spain|Canary Islands':['28.2916','-16.6291'],'Spain|Cantabria':['43.1828','-3.9878'],'Spain|Castile and León':['41.6521','-4.7245'],'Spain|Castile-La Mancha':['39.2963','-3.0977'],'Spain|Catalonia':['41.5912','1.5209'],'Spain|Extremadura':['39.4937','-6.0679'],'Spain|Galicia':['42.5751','-8.1339'],'Spain|La Rioja':['42.2871','-2.5396'],'Spain|Madrid':['40.4168','-3.7038'],'Spain|Murcia':['37.9922','-1.1307'],'Spain|Navarre':['42.6954','-1.6761'],'Spain|Valencia':['39.4840','-0.7533'],
+  'India|Andhra Pradesh':['15.9129','79.7400'],'India|Assam':['26.2006','92.9376'],'India|Bihar':['25.0961','85.3131'],'India|Goa':['15.2993','74.1240'],'India|Gujarat':['22.2587','71.1924'],'India|Haryana':['29.0588','76.0856'],'India|Himachal Pradesh':['31.1048','77.1734'],'India|Jammu and Kashmir':['33.7782','76.5762'],'India|Jharkhand':['23.6102','85.2799'],'India|Karnataka':['15.3173','75.7139'],'India|Kerala':['10.8505','76.2711'],'India|Madhya Pradesh':['22.9734','78.6569'],'India|Maharashtra':['19.7515','75.7139'],'India|Manipur':['24.6637','93.9063'],'India|Meghalaya':['25.4670','91.3662'],'India|Mizoram':['23.1645','92.9376'],'India|Odisha':['20.9517','85.0985'],'India|Punjab':['31.1471','75.3412'],'India|Rajasthan':['27.0238','74.2179'],'India|Sikkim':['27.5330','88.5122'],'India|Tamil Nadu':['11.1271','78.6569'],'India|Telangana':['18.1124','79.0193'],'India|Uttar Pradesh':['26.8467','80.9462'],'India|Uttarakhand':['30.0668','79.0193'],'India|West Bengal':['22.9868','87.8550'],
+  'New Zealand|Auckland':['-36.8509','174.7645'],'New Zealand|Bay of Plenty':['-37.9342','176.5587'],'New Zealand|Canterbury':['-43.9584','170.4554'],"New Zealand|Hawke's Bay":['-39.4928','176.5870'],'New Zealand|Manawatu-Whanganui':['-39.7473','175.4532'],'New Zealand|Marlborough':['-41.5134','173.9612'],'New Zealand|Nelson':['-41.2706','173.2840'],'New Zealand|Northland':['-35.5795','173.8948'],'New Zealand|Otago':['-45.4792','169.3273'],'New Zealand|Southland':['-45.8785','168.3541'],'New Zealand|Taranaki':['-39.3538','174.4383'],'New Zealand|Tasman':['-41.4584','172.8384'],'New Zealand|Waikato':['-37.7870','175.2793'],'New Zealand|Wellington':['-41.2865','174.7762'],'New Zealand|West Coast':['-42.6212','171.3816'],
+};
+
+function bHaversine(a,b){
+  const R=6371, rad=x=>parseFloat(x)*Math.PI/180;
+  const dLat=rad(b[0])-rad(a[0]), dLng=rad(b[1])-rad(a[1]);
+  const h=Math.sin(dLat/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+
+function bRouteProvinces(provinces,country){
+  const coords={};
+  provinces.forEach(p=>{const k=`${country}|${p}`;if(GEO[k])coords[p]=GEO[k];});
+  const covered=provinces.filter(p=>coords[p]), missing=provinces.filter(p=>!coords[p]);
+  if(covered.length<2) return provinces;
+  const routed=[covered[0]], remaining=new Set(covered.slice(1));
+  while(remaining.size>0){
+    const last=routed[routed.length-1]; let best=null,bestDist=Infinity;
+    for(const c of remaining){const d=bHaversine(coords[last],coords[c]);if(d<bestDist){bestDist=d;best=c;}}
+    routed.push(best); remaining.delete(best);
+  }
+  return [...routed,...missing];
+}
+
+function bSortByRating(list){
+  return [...list.filter(p=>p.rating>0).sort((a,b)=>b.rating-a.rating),...list.filter(p=>!p.rating||p.rating===0)];
+}
+
+function bGetDayTheme(places){
+  const counts={};
+  places.forEach(p=>{if(p.category)counts[p.category]=(counts[p.category]||0)+1;});
+  const dom=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  if(!dom) return places.map(p=>p.location).slice(0,2).join(' & ');
+  const names=places.slice(0,2).map(p=>p.location).join(' & ');
+  return `${dom[0]} — ${names}${places.length>2?' +'+(places.length-2):''}`;
+}
+
+function bFmtTime(totalMins){
+  const h=Math.floor(totalMins/60)%24, m=Math.round(totalMins%60);
+  const ampm=h<12?'am':'pm', h12=h%12||12;
+  return `${h12}:${m.toString().padStart(2,'0')}${ampm}`;
+}
+
+function bStarsHTML(n){
+  let h='';
+  for(let i=1;i<=5;i++){const c=i<=n?'#C8973A':'#D5D0C8';h+=`<span class="star"><svg viewBox="0 0 14 14" fill="${c}"><polygon points="7,1 8.8,5.2 13.5,5.7 10,8.8 11,13.5 7,11 3,13.5 4,8.8 0.5,5.7 5.2,5.2"/></svg></span>`;}
+  return h;
+}
+
+// Init builder data (lazy — runs when tab is first opened)
+bLoadData();
+</script>
+</body>
+</html>
